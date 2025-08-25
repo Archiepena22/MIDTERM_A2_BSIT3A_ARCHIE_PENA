@@ -2,11 +2,11 @@ using Library_Management.Models;
 using Library_Management.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Library_Management.Controllers
-{
+namespace Library_Management.Controllers  
+{   
     public class AuthorController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index()   
         {
             var authors = AuthorService.Instance.GetAuthors(includeArchived: false);
             return View(authors);
