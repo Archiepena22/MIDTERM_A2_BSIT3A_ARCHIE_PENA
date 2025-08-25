@@ -1,0 +1,116 @@
+@model IEnumerable<Library_Management.Models.AuthorListViewModel>
+
+@{
+    ViewData["Title"] = "Archived Authors";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-6 fw-bold">
+                    <i class="bi bi-archive"></i> Archived Authors
+                </h1>
+                <a asp-action="Index" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> Back to Active Authors
+                </a>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="row g-4">
+                @foreach (var author in Model)
+                {
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="card h-100 shadow-sm border-warning">
+                            <div class="card-body d-flex flex-column">
+                                <div class="position-relative">
+                                    <span class="badge bg-warning text-dark position-absolute top-0 end-0">Archived</span>
+                                    
+                                    <div class="text-center mb-3">
+                                        @if (!string.IsNullOrEmpty(author.ProfileImageUrl))
+                                        {
+                                            <img src="@author.ProfileImageUrl" 
+                                                 class="rounded-circle mb-3 opacity-75" 
+                                                 style="width: 80px; height: 80px; object-fit: cover;" 
+                                                 alt="@author.Name">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-secondary rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center opacity-75"
+                                                 style="width: 80px; height: 80px;">
+                                                <i class="bi bi-person-fill text-white" style="font-size: 2rem;"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                
+                                <h5 class="card-title text-center mb-2">@author.Name</h5>
+                                
+                                @if (author.BirthDate.HasValue)
+                                {
+                                    <p class="card-text text-muted text-center small mb-2">
+                                        Born: @author.BirthDate.Value.ToString("MMM dd, yyyy")
+                                    </p>
+                                }
+
+                                <p class="card-text text-center mb-3">
+                                    <span class="badge bg-secondary">@author.BookCount books</span>
+                                </p>
+
+                                @if (!string.IsNullOrEmpty(author.Biography))
+                                {
+                                    <p class="card-text small text-muted mb-3" style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                                        @author.Biography
+                                    </p>
+                                }
+
+                                <div class="mt-auto">
+                                    <div class="d-grid gap-2">
+                                        <a asp-action="Details" asp-route-id="@author.AuthorId" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-eye"></i> View Details
+                                        </a>
+                                        <form asp-action="Restore" method="post">
+                                            <input type="hidden" name="id" value="@author.AuthorId" />
+                                            <button type="submit" class="btn btn-success btn-sm w-100" 
+                                                    onclick="return confirm('Are you sure you want to restore this author? This will also restore all their archived books.')">
+                                                <i class="bi bi-arrow-clockwise"></i> Restore
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-archive" style="font-size: 4rem; color: #6c757d;"></i>
+                    <h3 class="mt-3 text-muted">No Archived Authors</h3>
+                    <p class="text-muted">All authors are currently active.</p>
+                    <a asp-action="Index" class="btn btn-primary mt-3">
+                        <i class="bi bi-arrow-left"></i> Back to Active Authors
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

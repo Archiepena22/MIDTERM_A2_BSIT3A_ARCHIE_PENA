@@ -1,0 +1,93 @@
+@model Library_Management.Models.AddAuthorViewModel
+
+@{
+    ViewData["Title"] = "Add New Author";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-person-plus"></i> Add New Author</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Biography" class="form-label"></label>
+                            <textarea asp-for="Biography" class="form-control" rows="4" 
+                                      placeholder="Brief biography of the author..."></textarea>
+                            <span asp-validation-for="Biography" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BirthDate" class="form-label"></label>
+                            <input asp-for="BirthDate" class="form-control" type="date" />
+                            <span asp-validation-for="BirthDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ProfileImageUrl" class="form-label"></label>
+                            <input asp-for="ProfileImageUrl" class="form-control" 
+                                   placeholder="https://example.com/author-photo.jpg" />
+                            <span asp-validation-for="ProfileImageUrl" class="text-danger"></span>
+                            <div class="form-text">Optional: URL to the author's profile image</div>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div class="mb-3" id="imagePreview" style="display: none;">
+                            <label class="form-label">Preview:</label>
+                            <div class="text-center">
+                                <img id="previewImg" class="rounded-circle" 
+                                     style="width: 100px; height: 100px; object-fit: cover;" />
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Create Author
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Image preview functionality
+        document.getElementById('@Html.IdFor(m => m.ProfileImageUrl)').addEventListener('input', function(e) {
+            const url = e.target.value;
+            const preview = document.getElementById('imagePreview');
+            const img = document.getElementById('previewImg');
+            
+            if (url && url.trim() !== '') {
+                img.src = url;
+                img.onerror = function() {
+                    preview.style.display = 'none';
+                };
+                img.onload = function() {
+                    preview.style.display = 'block';
+                };
+                // Try to load the image
+                img.src = url;
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+    </script>
+}

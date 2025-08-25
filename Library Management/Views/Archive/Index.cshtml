@@ -1,0 +1,173 @@
+@model Library_Management.Controllers.ArchiveViewModel
+
+@{
+    ViewData["Title"] = "Archive Management";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-6 fw-bold">
+                    <i class="bi bi-archive-fill"></i> Archive Management
+                </h1>
+                <div class="d-flex gap-2">
+                    <a asp-controller="Book" asp-action="Index" class="btn btn-outline-primary">
+                        <i class="bi bi-book"></i> Books
+                    </a>
+                    <a asp-controller="Author" asp-action="Index" class="btn btn-outline-success">
+                        <i class="bi bi-person"></i> Authors
+                    </a>
+                </div>
+            </div>
+
+            <!-- Archive Summary -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <div class="card border-primary">
+                        <div class="card-body text-center">
+                            <i class="bi bi-book-fill text-primary" style="font-size: 3rem;"></i>
+                            <h3 class="mt-3">@Model.TotalArchivedBooks</h3>
+                            <p class="text-muted mb-3">Archived Books</p>
+                            <a asp-controller="Book" asp-action="Archive" class="btn btn-outline-primary">
+                                <i class="bi bi-eye"></i> View All
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-success">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-fill text-success" style="font-size: 3rem;"></i>
+                            <h3 class="mt-3">@Model.TotalArchivedAuthors</h3>
+                            <p class="text-muted mb-3">Archived Authors</p>
+                            <a asp-controller="Author" asp-action="Archive" class="btn btn-outline-success">
+                                <i class="bi bi-eye"></i> View All
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Archived Books -->
+            @if (Model.ArchivedBooks.Any())
+            {
+                <div class="card shadow mb-5">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-book"></i> Recently Archived Books</h4>
+                        <a asp-controller="Book" asp-action="Archive" class="btn btn-outline-primary btn-sm">
+                            View All (@Model.TotalArchivedBooks)
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @foreach (var book in Model.ArchivedBooks.Take(8))
+                            {
+                                <div class="col-md-6 col-lg-3">
+                                    <div class="card border-warning h-100">
+                                        <div class="position-relative">
+                                            @if (!string.IsNullOrEmpty(book.CoverImageUrl))
+                                            {
+                                                <img src="@book.CoverImageUrl" 
+                                                     class="card-img-top opacity-75" 
+                                                     style="height: 200px; object-fit: cover;" 
+                                                     alt="@book.Title">
+                                            }
+                                            else
+                                            {
+                                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center opacity-75"
+                                                     style="height: 200px;">
+                                                    <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
+                                                </div>
+                                            }
+                                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">Archived</span>
+                                        </div>
+                                        <div class="card-body">
+                                            <h6 class="card-title">@book.Title</h6>
+                                            <p class="card-text text-muted small">by @book.AuthorName</p>
+                                            <div class="d-grid">
+                                                <a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye"></i> View Details
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Recent Archived Authors -->
+            @if (Model.ArchivedAuthors.Any())
+            {
+                <div class="card shadow">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-person"></i> Recently Archived Authors</h4>
+                        <a asp-controller="Author" asp-action="Archive" class="btn btn-outline-success btn-sm">
+                            View All (@Model.TotalArchivedAuthors)
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @foreach (var author in Model.ArchivedAuthors.Take(8))
+                            {
+                                <div class="col-md-6 col-lg-3">
+                                    <div class="card border-warning h-100">
+                                        <div class="card-body text-center">
+                                            <div class="position-relative">
+                                                @if (!string.IsNullOrEmpty(author.ProfileImageUrl))
+                                                {
+                                                    <img src="@author.ProfileImageUrl" 
+                                                         class="rounded-circle mb-3 opacity-75" 
+                                                         style="width: 60px; height: 60px; object-fit: cover;" 
+                                                         alt="@author.Name">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-secondary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center opacity-75"
+                                                         style="width: 60px; height: 60px;">
+                                                        <i class="bi bi-person-fill text-white"></i>
+                                                    </div>
+                                                }
+                                                <span class="badge bg-warning text-dark position-absolute top-0 end-0">Archived</span>
+                                            </div>
+                                            <h6 class="card-title">@author.Name</h6>
+                                            <p class="card-text text-muted small">@author.BookCount books</p>
+                                            <div class="d-grid">
+                                                <a asp-controller="Author" asp-action="Details" asp-route-id="@author.AuthorId" 
+                                                   class="btn btn-outline-success btn-sm">
+                                                    <i class="bi bi-eye"></i> View Details
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Empty State -->
+            @if (!Model.ArchivedBooks.Any() && !Model.ArchivedAuthors.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-archive" style="font-size: 4rem; color: #6c757d;"></i>
+                    <h3 class="mt-3 text-muted">Archive is Empty</h3>
+                    <p class="text-muted">No books or authors have been archived yet.</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a asp-controller="Book" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-book"></i> Manage Books
+                        </a>
+                        <a asp-controller="Author" asp-action="Index" class="btn btn-success">
+                            <i class="bi bi-person"></i> Manage Authors
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

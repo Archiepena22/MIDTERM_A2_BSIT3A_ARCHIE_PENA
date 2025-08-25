@@ -1,0 +1,105 @@
+@model Library_Management.Models.PulloutBookCopyViewModel
+
+<div class="modal-header bg-warning text-dark">
+    <h5 class="modal-title">
+        <i class="bi bi-box-arrow-down"></i> Pull Out Book Copy
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<form asp-action="PulloutBookCopy" asp-controller="Book" method="post">
+    <div class="modal-body">
+        <input asp-for="BookCopyId" type="hidden" />
+
+        <div class="text-center mb-4">
+            @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+            {
+                <img src="@Model.CoverImageUrl" 
+                     class="img-fluid rounded" 
+                     style="max-height: 150px; object-fit: cover;" 
+                     alt="@Model.BookTitle">
+            }
+            else
+            {
+                <div class="bg-light d-flex align-items-center justify-content-center rounded mx-auto"
+                     style="height: 150px; width: 100px;">
+                    <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
+                </div>
+            }
+            <h6 class="mt-2 mb-0">@Model.BookTitle</h6>
+        </div>
+
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <strong>Warning!</strong> This action will remove this book copy from circulation. 
+            The copy will no longer be available for borrowing until it's returned to circulation.
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PulloutReason" class="form-label"></label>
+            <select asp-for="PulloutReason" class="form-select" required>
+                <option value="">-- Select a reason --</option>
+                <option value="Damaged">Damaged</option>
+                <option value="Lost">Lost</option>
+                <option value="Outdated">Outdated</option>
+                <option value="Under Repair">Under Repair</option>
+                <option value="Missing Pages">Missing Pages</option>
+                <option value="Binding Issues">Binding Issues</option>
+                <option value="Water Damage">Water Damage</option>
+                <option value="Other">Other</option>
+            </select>
+            <span asp-validation-for="PulloutReason" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3" id="customReasonGroup" style="display: none;">
+            <label for="customReason" class="form-label">Custom Reason</label>
+            <input type="text" class="form-control" id="customReason" 
+                   placeholder="Please specify the reason...">
+            <div class="form-text">This will replace your selection above.</div>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x"></i> Cancel
+        </button>
+        <button type="submit" class="btn btn-warning text-dark">
+            <i class="bi bi-box-arrow-down"></i> Pull Out Copy
+        </button>
+    </div>
+</form>
+
+<script>
+    document.getElementById('@Html.IdFor(m => m.PulloutReason)').addEventListener('change', function(e) {
+        const customGroup = document.getElementById('customReasonGroup');
+        const customInput = document.getElementById('customReason');
+        
+        if (e.target.value === 'Other') {
+            customGroup.style.display = 'block';
+            customInput.required = true;
+            customInput.focus();
+        } else {
+            customGroup.style.display = 'none';
+            customInput.required = false;
+            customInput.value = '';
+        }
+    });
+
+    document.getElementById('customReason').addEventListener('input', function(e) {
+        const reasonSelect = document.getElementById('@Html.IdFor(m => m.PulloutReason)');
+        if (e.target.value.trim()) {
+            reasonSelect.value = e.target.value;
+        } else {
+            reasonSelect.value = 'Other';
+        }
+    });
+
+    // Set initial state
+    const initialReason = document.getElementById('@Html.IdFor(m => m.PulloutReason)').value;
+    if (initialReason === 'Other') {
+        document.getElementById('customReasonGroup').style.display = 'block';
+        document.getElementById('customReason').required = true;
+    }
+</script>

@@ -1,0 +1,112 @@
+@model Library_Management.Models.AuthorDetailsViewModel
+
+<div class="modal-header bg-danger text-white">
+    <h5 class="modal-title">Delete Author</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    <div class="text-center mb-4">
+        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+        {
+            <img src="@Model.ProfileImageUrl" 
+                 class="rounded-circle mb-3" 
+                 style="width: 80px; height: 80px; object-fit: cover;" 
+                 alt="@Model.Name">
+        }
+        else
+        {
+            <div class="bg-secondary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                 style="width: 80px; height: 80px;">
+                <i class="bi bi-person-fill text-white" style="font-size: 2rem;"></i>
+            </div>
+        }
+        <h5>@Model.Name</h5>
+    </div>
+
+    @if (Model.Books.Any())
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <strong>Warning!</strong> This author has <strong>@Model.Books.Count book(s)</strong> associated with them.
+            Deleting the author will also delete all their books and book copies.
+        </div>
+        
+        <p class="text-muted">Books that will be deleted:</p>
+        <ul class="list-group mb-3">
+            @foreach (var book in Model.Books.Take(5))
+            {
+                <li class="list-group-item">@book.Title</li>
+            }
+            @if (Model.Books.Count > 5)
+            {
+                <li class="list-group-item text-muted">... and @(Model.Books.Count - 5) more books</li>
+            }
+        </ul>
+        
+        <p><strong>Consider archiving the author instead of deleting to preserve the data.</strong></p>
+    }
+    else
+    {
+        <p>Are you sure you want to permanently delete this author?</p>
+        <p class="text-muted">This action cannot be undone.</p>
+    }
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        <i class="bi bi-x"></i> Cancel
+    </button>
+    
+    @if (Model.Books.Any())
+    {
+        <button type="button" class="btn btn-warning" onclick="archiveAuthorFromModal('@Model.AuthorId')" data-bs-dismiss="modal">
+            <i class="bi bi-archive"></i> Archive Instead
+        </button>
+    }
+    
+    <button type="button" class="btn btn-danger" onclick="confirmDelete('@Model.AuthorId')" data-bs-dismiss="modal">
+        <i class="bi bi-trash"></i> Delete Permanently
+    </button>
+</div>
+
+<script>
+    function confirmDelete(authorId) {
+        fetch(`/Author/Delete/${authorId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error deleting author');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting author');
+        });
+    }
+
+    function archiveAuthorFromModal(authorId) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/Author/Archive/' + authorId;
+        
+        var token = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (token) {
+            var hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden';
+            hiddenField.name = '__RequestVerificationToken';
+            hiddenField.value = token.value;
+            form.appendChild(hiddenField);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>

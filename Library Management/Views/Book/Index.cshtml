@@ -1,0 +1,130 @@
+﻿@model IEnumerable<Library_Management.Models.BookListViewModel>
+
+@{
+    ViewData["Title"] = "Books";
+}
+
+<h1 class="mb-4 fw-bold">Book Library</h1>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+    <div class="col">
+        <a href="javascript:void(0);" class="card h-100 shadow-sm border-0 d-flex align-items-center justify-content-center text-decoration-none add-card" onclick="openAddModal()">
+            <div class="text-center">
+                <i class="bi bi-plus-circle" style="font-size: 3rem; color: #6c757d;"></i>
+                <p class="mt-2 text-muted">Add Book</p>
+            </div>
+        </a>
+    </div>
+
+    @foreach (var book in Model)
+    {
+        <div class="col">
+            <div class="card book-card h-100 shadow-sm border-0">
+                <div class="book-actions">
+                    <a href="javascript:void(0);"
+                       class="action-btn"
+                       title="Edit"
+                       onclick="openEditModal('@book.BookId')">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+
+                    <a asp-action="Details" asp-route-id="@book.BookId" class="action-btn" title="Details">
+                        <i class="bi bi-eye"></i>
+                    </a>
+
+                    <a href="javascript:void(0);"
+                       class="action-btn"
+                       title="Delete"
+                       onclick="openDeleteModal('@book.BookId')">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+
+                <img src="@book.CoverImageUrl" class="card-img-top" alt="@book.Title" style="height: 200px; object-fit: cover; background-color: silver;">
+
+                <div class="card-body">
+                    <h6 class="card-title text-truncate" title="@book.Title">@book.Title</h6>
+                    <p class="text-muted mb-1 text-truncate">
+                        <strong>Author:</strong> @book.AuthorName
+                    </p>
+                    <p class="mb-0 small text-secondary">
+                        @book.Genre | Copies: @book.AvailableCopies / @book.TotalCopies
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Shared Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Partial content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function openAddModal() {
+            fetch(`/Book/AddModal`)
+                .then(response => response.text())
+                .then(html => {
+                    document.querySelector('#exampleModal .modal-content').innerHTML = html;
+                    new bootstrap.Modal(document.getElementById('exampleModal')).show();
+                })
+                .catch(error => {
+                    alert('Error loading Add modal: ' + error.message);
+                });
+        }
+
+        function openEditModal(bookId) {
+            fetch(`/Book/EditModal?id=${encodeURIComponent(bookId)}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.querySelector('#exampleModal .modal-content').innerHTML = html;
+                    new bootstrap.Modal(document.getElementById('exampleModal')).show();
+                })
+                .catch(error => {
+                    alert('Error loading Edit modal: ' + error.message);
+                });
+        }
+
+        function openDeleteModal(bookId) {
+            fetch(`/Book/DeleteModal?id=${encodeURIComponent(bookId)}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.querySelector('#exampleModal .modal-content').innerHTML = html;
+                    new bootstrap.Modal(document.getElementById('exampleModal')).show();
+                })
+                .catch(error => {
+                    alert('Error loading Delete modal: ' + error.message);
+                });
+        }
+
+        document.addEventListener("submit", function (e) {
+            const form = e.target;
+
+            if (form.matches("#editBookForm") || form.matches("#addBookForm") || form.matches("#deleteBookForm")) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                fetch(form.action, {
+                    method: form.method,
+                    body: new URLSearchParams(formData)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to submit form.');
+                        }
+                        location.reload(); // Refresh to reflect changes
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                    });
+            }
+        });
+    </script>
+}
